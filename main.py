@@ -1085,7 +1085,6 @@ def decryptHillCipher():
   strVal = ''.join(hillCipherTextField.get().split()).upper()
   keyword = ''.join(hillCipherTextFieldKeyword.get().split()).upper()
   keywordLen = len(keyword)
-  index = 0
 
   if keywordLen != 4:
     hillCipherOutput.configure(text="ERROR, MUST HAVE 4 CHARACTERS")
@@ -1096,17 +1095,14 @@ def decryptHillCipher():
     return
 
   keywordNum = [ord(keyword[0]) % 64, ord(keyword[1]) % 64, ord(keyword[2]) % 64, ord(keyword[3]) % 64]  
-  print(keywordNum)
+
   det = keywordNum[0] * keywordNum[3] - keywordNum[1] * keywordNum[2]
   det = det % 26
-
-  print(det)
   temp = 0
   while (det * temp) % 26 != 1:
     temp += 1
 
   keywordNum = [(keywordNum[3] * temp) % 26, (-keywordNum[1] * temp) % 26, (-keywordNum[2] * temp) % 26, (keywordNum[0] * temp) % 26]
-  print(keywordNum)
 
   plainText = []
   temp = []
@@ -1149,7 +1145,6 @@ def openfileHillCipherEncrypt():
       content = ''.join(file.read().split()).upper()
       keyword = ''.join(hillCipherTextFieldKeyword.get().split()).upper()
       keywordLen = len(keyword)
-      index = 0
 
       if keywordLen != 4:
         hillCipherOutput.configure(text="ERROR, MUST HAVE 4 CHARACTERS")
@@ -1202,7 +1197,6 @@ def openfileHillCipherDecrypt():
       content = ''.join(file.read().split()).upper()
       keyword = ''.join(hillCipherTextFieldKeyword.get().split()).upper()
       keywordLen = len(keyword)
-      index = 0
 
       if keywordLen != 4:
         hillCipherOutput.configure(text="ERROR, MUST HAVE 4 CHARACTERS")
@@ -1212,26 +1206,38 @@ def openfileHillCipherDecrypt():
         hillCipherOutput.configure(text="ERROR, INPUT LENGTH MUST BE DIVISIBLE BY 2")
         return
 
-      while len(keyword) < len(content):
-        if index >= keywordLen:
-          index = 0
+      keywordNum = [ord(keyword[0]) % 64, ord(keyword[1]) % 64, ord(keyword[2]) % 64, ord(keyword[3]) % 64]  
 
-        keyword += keyword[index]
-        index += 1
+      det = keywordNum[0] * keywordNum[3] - keywordNum[1] * keywordNum[2]
+      det = det % 26
+      temp = 0
+      while (det * temp) % 26 != 1:
+        temp += 1
 
-      index = 0
-      ans = ""
+      keywordNum = [(keywordNum[3] * temp) % 26, (-keywordNum[1] * temp) % 26, (-keywordNum[2] * temp) % 26, (keywordNum[0] * temp) % 26]
+
+      plainText = []
+      temp = []
       for char in content:
-        if ord(char) < 65 or (ord(char) > 90 and ord(char) < 97) or ord(char) > 122: 
-          hillCipherOutput.configure(text="ERROR, ALPHABET ONLY")
-          return
-    
-        asciiNum = ord(char)
-        asciiNum -= (ord(keyword[index]))
-        asciiNum = asciiNum % 26
-        asciiNum += 65
-        ans += chr(asciiNum + 0)
-        index += 1
+        temp.append(ord(char) % 64)
+
+        if len(temp) == 2:
+          plainText.append(temp)
+          temp = []
+
+      ans = ""
+      for el in plainText:
+        first =  keywordNum[0] * el[0] + keywordNum[1] * el[1]
+        first = first % 26
+
+        second = keywordNum[2] * el[0] + keywordNum[3] * el[1]
+        second = second % 26
+
+        first += 65
+        second += 65
+
+        ans += chr(first)
+        ans += chr(second)
 
       hillCipherOutput.configure(text="Output: " + ans)
 
